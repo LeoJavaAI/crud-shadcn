@@ -16,16 +16,15 @@ export const metadata: Metadata = {
     description: "Manage users and their information",
 }
 
-export default async function Page({
-                                       searchParams,
-                                   }: {
-    searchParams?: {
-        query?: string
-        page?: string
-    }
+export default async function Page(props: {
+    searchParams?: Promise<{
+        query?: string;
+        page?: string;
+    }>;
 }) {
-    const query = searchParams?.query || ""
-    const currentPage = Number(searchParams?.page) || 1
+    const searchParams = await props.searchParams;
+    const query = searchParams?.query || '';
+    const currentPage = Number(searchParams?.page) || 1;
     const totalPages = await fetchUsersPages(query)
 
     return (

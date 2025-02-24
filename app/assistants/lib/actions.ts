@@ -104,8 +104,8 @@ export async function createAssistant(prevState: State, formData: FormData): Pro
 //     createdAt: Date
 // }
 
-const ITEMS_PER_PAGE = 6
 
+const ITEMS_PER_PAGE = 6
 export async function fetchFilteredUsers(query: string, currentPage: number) {
     const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
@@ -115,7 +115,8 @@ export async function fetchFilteredUsers(query: string, currentPage: number) {
             .from(usersTable)
             .where(
                 sql`LOWER(name) LIKE LOWER(${`%${query}%`}) OR 
-            LOWER(email) LIKE LOWER(${`%${query}%`})`,
+            LOWER(email) LIKE LOWER(${`%${query}%`}) OR
+            CAST(age AS TEXT) LIKE ${`%${query}%`}`,
             )
             .limit(ITEMS_PER_PAGE)
             .offset(offset)
@@ -127,6 +128,7 @@ export async function fetchFilteredUsers(query: string, currentPage: number) {
     }
 }
 
+// Also update the fetchUsersPages function to include the same conditions
 export async function fetchUsersPages(query: string) {
     try {
         const count = await db
@@ -134,7 +136,8 @@ export async function fetchUsersPages(query: string) {
             .from(usersTable)
             .where(
                 sql`LOWER(name) LIKE LOWER(${`%${query}%`}) OR 
-            LOWER(email) LIKE LOWER(${`%${query}%`})`,
+            LOWER(email) LIKE LOWER(${`%${query}%`}) OR
+            CAST(age AS TEXT) LIKE ${`%${query}%`}`,
             )
 
         const totalPages = Math.ceil(Number(count[0].count) / ITEMS_PER_PAGE)
@@ -144,6 +147,8 @@ export async function fetchUsersPages(query: string) {
         throw new Error("Failed to fetch total number of users.")
     }
 }
+
+
 
 
 
