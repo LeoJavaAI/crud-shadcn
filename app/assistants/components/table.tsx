@@ -1,4 +1,9 @@
 import {fetchFilteredUsers} from "@/app/assistants/lib/actions";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Pencil } from "lucide-react"
+import { DeleteUser } from "./button";
+
 
 export default async function Table({
                                              query,
@@ -38,6 +43,18 @@ export default async function Table({
                                     <td className="whitespace-nowrap px-4 py-4">{user.name}</td>
                                     <td className="whitespace-nowrap px-4 py-4">{user.email}</td>
                                     <td className="whitespace-nowrap px-4 py-4">{user.age}</td>
+                                    <td className="whitespace-nowrap px-4 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <Button variant="ghost" size="icon" asChild>
+                                                <Link href={`/assistants/${user.id}/edit`}>
+                                                    <Pencil className="h-4 w-4" />
+                                                    <span className="sr-only">Edit</span>
+                                                </Link>
+                                            </Button>
+                                            <DeleteUser id={user.id} name={user.name} />
+
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>

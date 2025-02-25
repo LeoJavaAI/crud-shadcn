@@ -1,22 +1,11 @@
-"use server"
-
-import { z } from "zod"
-import { usersTable } from "@/lib/db/schema"
-import { createInsertSchema } from "drizzle-zod"
+'use server';
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { z } from "zod"
+import { createInsertSchema } from "drizzle-zod"
 import { drizzle } from "drizzle-orm/node-postgres"
-import {sql} from "drizzle-orm";
-
-
-
-type PostgresError = {
-    code: string
-    constraint?: string
-    detail?: string
-    table?: string
-    severity?: string
-}
+import { usersTable } from "@/lib/db/schema"
+import { sql } from "drizzle-orm"
 
 const db = drizzle(process.env.POSTGRES_URL!)
 
@@ -29,24 +18,50 @@ const formSchema = z.object({
 })
 
 export type State = {
+    message: string | null
     errors?: {
         name?: string[]
         age?: string[]
         email?: string[]
         message?: string[]
     }
-    message?: string | null
 }
 
-export async function createAssistant(prevState: State, formData: FormData): Promise<State> {
-    // Validate the form data
+type PostgresError = {
+    code: string
+    constraint: string
+}
+
+
+
+// Update the deleteUser function
+export async function deleteUser(id: number, name: string): Promise<State> {
+    try {
+        await db.delete(usersTable).where(sql`id = ${id}`)
+         } catch (error) {
+        console.error("Database Error:", error)
+        return {
+            message: "Failed to delete user",
+            errors: {
+                message: ["An unexpected error occurred"],
+            },
+        }
+
+    }
+
+    revalidatePath("/assistants")
+    redirect(`/assistants?message=${encodeURIComponent(`User ${name} was successfully deleted`)}`)
+
+}
+
+// Update the updateUser function
+export async function updateUser(id: number, prevState: State, formData: FormData): Promise<State> {
     const validatedFields = formSchema.safeParse({
         name: formData.get("name"),
         age: formData.get("age"),
         email: formData.get("email"),
     })
 
-    // Return early if validation fails
     if (!validatedFields.success) {
         return {
             message: "Invalid form data",
@@ -56,44 +71,23 @@ export async function createAssistant(prevState: State, formData: FormData): Pro
 
     try {
         const userInsertSchema = createInsertSchema(usersTable)
-        const parsed: { name: string; age: number; email: string } = userInsertSchema.parse(validatedFields.data)
-        await db.insert(usersTable).values(parsed)
+        const parsed = userInsertSchema.parse(validatedFields.data)
 
-
-    }  catch (error) {
-        // Type guard to check if error is a PostgreSQL error
-        const isPostgresError = (err: unknown): err is PostgresError => {
-            return typeof err === "object" && err !== null && "code" in err && typeof (err as PostgresError).code === "string"
-        }
-
-        if (isPostgresError(error)) {
-            // Handle database constraint errors
-            if (error.code === "23505" && error.constraint === "users_email_unique") {
-                return {
-                    message: "Failed to create profile",
-                    errors: {
-                        email: ["This email is already registered"],
-                    },
-                }
+        await db.update(usersTable).set(parsed).where(sql`id = ${id}`)
+  } catch (error) {
+        if (error && typeof error === "object" && "code" in error && error.code === "23505") {
+            return {
+                message: "Failed to update user",
+                errors: {
+                    email: ["This email is already registered"],
+                },
             }
         }
 
-        // Handle other errors
-        console.error(error)
-        return {
-            message: "Failed to create profile",
-            errors: {
-                message: ["An unexpected error occurred"],
-            },
-        }
     }
-
-    // This return is needed for TypeScript, but it won't be reached due to the redirect
-    // Return success state
-    revalidatePath("/assistants")
-    redirect("/assistants")
-}
-
+        revalidatePath("/assistants")
+        redirect(`/assistants?message=${encodeURIComponent(`User ${validatedFields.data.name} was successfully updated`)}`)
+    }
 
 
 // export type User = {
@@ -148,7 +142,65 @@ export async function fetchUsersPages(query: string) {
     }
 }
 
+export async function fetchUserById(id: number) {
+    try {
+        const users = await db.select().from(usersTable).where(sql`id = ${id}`)
+
+        return users[0]
+    } catch (error) {
+        console.error("Database Error:", error)
+        throw new Error("Failed to fetch user.")
+    }
+}
 
 
+// Update the createAssistant function
+export async function createAssistant(prevState: State, formData: FormData): Promise<State> {
+    const validatedFields = formSchema.safeParse({
+        name: formData.get("name"),
+        age: formData.get("age"),
+        email: formData.get("email"),
+    })
 
+    if (!validatedFields.success) {
+        return {
+            message: "Invalid form data",
+            errors: validatedFields.error.flatten().fieldErrors,
+        }
+    }
+
+    try {
+        const userInsertSchema = createInsertSchema(usersTable)
+        const parsed = userInsertSchema.parse(validatedFields.data)
+        await db.insert(usersTable).values(parsed)
+  } catch (error) {
+        const isPostgresError = (err: unknown): err is PostgresError => {
+            return typeof err === "object" && err !== null && "code" in err && typeof (err as PostgresError).code === "string"
+        }
+
+        if (isPostgresError(error)) {
+            if (error.code === "23505" && error.constraint === "users_email_unique") {
+                return {
+                    message: "Failed to create profile",
+                    errors: {
+                        email: ["This email is already registered"],
+                    },
+                }
+            }
+        }
+
+        console.error("Unexpected error:", error)
+        return {
+            message: "Failed to create profile",
+            errors: {
+                message: ["An unexpected error occurred"],
+            },
+        }
+    }
+
+
+    revalidatePath("/assistants")
+    redirect(`/assistants?message=${encodeURIComponent(`User ${validatedFields.data.name} was successfully created`)}`)
+
+}
 
