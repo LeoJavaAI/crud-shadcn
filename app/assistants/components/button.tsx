@@ -18,12 +18,12 @@ import {deleteAssistant, deleteUser} from "../lib/actions"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 
-export function CreateUser() {
+export function CreateAssistant() {
     return (
         <Button asChild>
             <Link href="/assistants/create">
                 <PlusIcon className="h-4 w-4 mr-2" />
-                Add User
+                Add Assistant
             </Link>
         </Button>
     )
