@@ -224,14 +224,12 @@ export async function createAssistant(prevState: State, formData: FormData): Pro
     })
 
     if (!validatedFields.success) {
-        console.log(validatedFields.data);
+        //console.log(validatedFields.data);
 
 
         return {
-            message: "Failed to create assistant",
-            errors: {
-                message: ["An unexpected error occurred"],
-            },
+            message: "Invalid form data",
+            errors: validatedFields.error.flatten().fieldErrors,
         }
     }
 
