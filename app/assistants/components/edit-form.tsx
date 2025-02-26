@@ -14,28 +14,32 @@ import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useActionState } from "react"
-import {ModelName, ModelProvider, ModelType } from "@/lib/db/schema"
+import {assistantsTable, ModelName, ModelProvider, ModelType } from "@/lib/db/schema"
 import {createAssistant, updateAssistant, type State } from "../lib/actions"
 import type { Assistant } from "@/lib/db/schema"
+import { createUpdateSchema } from "drizzle-zod"
 
 const formSchema = z.object({
+    id: z.string(),
     name: z.string().min(2, {
         message: "Name must be at least 2 characters.",
     }),
     description: z.string().optional(),
-    provider: z.enum([ModelProvider.OpenAI, ModelProvider.Anthropic]),
-    modelName: z.enum(["gpt-4o-mini", "gpt-4o", "claude-3-5-sonnet-20241022", "gpt-4-turbo", "dall-e-2", "dall-e-3"]),
-    type: z.enum([ModelType.Text, ModelType.Image]),
+    provider: z.nativeEnum(ModelProvider),
+    modelName: z.string(), // Use string instead of enum for more flexibility
+    type: z.nativeEnum(ModelType),
     systemPrompt: z.string().optional(),
     temperature: z.number().min(0).max(1).default(0.7),
     maxTokens: z.number().min(1).max(4096).default(2048),
-    suggestions: z.array(z.string()).optional(),
+    suggestions: z.array(z.string()).default([]),
     apiKey: z.string().min(1, "API Key is required"),
 })
 
+const userUpdateSchema = createUpdateSchema(assistantsTable);
+
 interface EditFormProps {
-    initialData?: 
-        Assistant
+    initialData?:
+        z.infer<typeof formSchema>
 
 }
 
