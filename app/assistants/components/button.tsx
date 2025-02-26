@@ -14,7 +14,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deleteUser } from "../lib/actions"
+import {deleteAssistant, deleteUser} from "../lib/actions"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 
@@ -31,7 +31,7 @@ export function CreateUser() {
 
 
 
-export function DeleteUser({ id, name }: { id: number; name: string }) {
+export function DeleteUser({ id, name }: { id: string; name: string }) {
     const [isPending, startTransition] = useTransition()
     const router = useRouter()
 
@@ -55,7 +55,7 @@ export function DeleteUser({ id, name }: { id: number; name: string }) {
                     <AlertDialogAction
                         onClick={() => {
                             startTransition(async () => {
-                                await deleteUser(id, name)
+                                await deleteAssistant(id, name)
                                 router.refresh()
                             })
                         }}

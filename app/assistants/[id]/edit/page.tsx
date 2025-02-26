@@ -1,17 +1,24 @@
 
 import { notFound } from "next/navigation"
-import { fetchUserById } from "../../lib/actions"
+import {fetchAssistantById, fetchUserById} from "../../lib/actions"
 import { EditForm } from "../../components/edit-form"
 
-export default async function EditUserPage({
-                                               params,
-                                           }: {
-    params: { id: string }
-}) {
-    const id = Number.parseInt(params.id)
-    const user = await fetchUserById(id)
 
-    if (!user) {
+interface PageProps {
+    params: { id: string }
+}
+
+export default async function EditUserPage(props: { params: Promise<{ id: string }> }) {
+
+    const params = await props.params;
+    const id = params.id;
+
+
+
+    const assistant = await fetchAssistantById(id);
+
+
+    if (!assistant) {
         notFound()
     }
 
@@ -21,7 +28,7 @@ export default async function EditUserPage({
                 <h1 className="text-2xl font-bold">Edit User</h1>
             </div>
             <div className="mt-4">
-                <EditForm initialData={user} />
+                <EditForm initialData={assistant} />
             </div>
         </div>
     )

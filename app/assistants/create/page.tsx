@@ -2,7 +2,8 @@
 // import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 // import { fetchCustomers } from '@/app/lib/data';
 
-import {ProfileForm} from "@/app/assistants/components/create-form";
+import { CreateForm } from "../components/create-form";
+
 
 export default async function Page() {
     // const customers = await fetchCustomers();
@@ -19,7 +20,7 @@ export default async function Page() {
             {/*        },*/}
             {/*    ]}*/}
             {/*/>*/}
-            <ProfileForm  />
+            <CreateForm  />
         </main>
     );
 }
