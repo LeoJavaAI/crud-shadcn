@@ -1,12 +1,12 @@
 
 import { notFound } from "next/navigation"
-import {fetchAssistantById, fetchUserById} from "../../lib/actions"
+import {fetchAssistantById, } from "../../lib/actions"
 import { EditForm } from "../../components/edit-form"
 
 
-interface PageProps {
-    params: { id: string }
-}
+// interface PageProps {
+//     params: { id: string }
+// }
 
 export default async function EditUserPage(props: { params: Promise<{ id: string }> }) {
 

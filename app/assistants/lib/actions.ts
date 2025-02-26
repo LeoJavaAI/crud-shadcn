@@ -10,43 +10,57 @@ import { sql } from "drizzle-orm"
 const db = drizzle(process.env.POSTGRES_URL!)
 
 
-type PostgresError = {
-    code: string
-    constraint: string
-}
-
-
-
-// Update the deleteUser function
-export async function deleteUser(id: number, name: string): Promise<State> {
-    try {
-        await db.delete(usersTable).where(sql`id = ${id}`)
-         } catch (error) {
-        console.error("Database Error:", error)
-        return {
-            message: "Failed to delete user",
-            errors: {
-                message: ["An unexpected error occurred"],
-            },
-        }
-
-    }
-
-    revalidatePath("/assistants")
-    redirect(`/assistants?message=${encodeURIComponent(`User ${name} was successfully deleted`)}`)
-
-}
-
-// Update the updateUser function
-
-
-// export type User = {
-//     id: number
-//     name: string
-//     email: string
-//     age: number
-//     createdAt: Date
+// type PostgresError = {
+//     code: string
+//     constraint: string
 // }
+//
+//
+//
+// // Update the deleteUser function
+//
+// // Update the updateUser function
+// export async function updateUser(id: number,  formData: FormData) {
+//     const validatedFields = formSchema.safeParse({
+//         name: formData.get("name"),
+//         age: formData.get("age"),
+//         email: formData.get("email"),
+//     })
+//
+//     if (!validatedFields.success) {
+//         return {
+//             message: "Invalid form data",
+//             errors: validatedFields.error.flatten().fieldErrors,
+//         }
+//     }
+//
+//     try {
+//         const userInsertSchema = createInsertSchema(usersTable)
+//         const parsed = userInsertSchema.parse(validatedFields.data)
+//
+//         await db.update(usersTable).set(parsed).where(sql`id = ${id}`)
+//
+//         revalidatePath("/assistants")
+//         redirect(`/assistants?message=${encodeURIComponent(`User ${parsed.name} was successfully updated`)}`)
+//     } catch (error) {
+//         if (error && typeof error === "object" && "code" in error && error.code === "23505") {
+//             return {
+//                 message: "Failed to update user",
+//                 errors: {
+//                     email: ["This email is already registered"],
+//                 },
+//             }
+//         }
+//     }
+//     }
+//
+// // export type User = {
+// //     id: number
+// //     name: string
+// //     email: string
+// //     age: number
+// //     createdAt: Date
+// // }
 
 
 const ITEMS_PER_PAGE = 6

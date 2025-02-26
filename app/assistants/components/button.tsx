@@ -14,7 +14,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import {deleteAssistant, deleteUser} from "../lib/actions"
+import {deleteAssistant} from "../lib/actions"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
 

@@ -1,10 +1,5 @@
-import {fetchFilteredAssistants, fetchFilteredUsers} from "@/app/assistants/lib/actions";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Pencil } from "lucide-react"
-import { DeleteUser } from "./button";
-import { Assistant } from "@/lib/db/schema";
-import { useAssistantStore } from "../store";
+import {fetchFilteredAssistants,} from "@/app/assistants/lib/actions";
+
 import { TableClient } from "./table-client";
 
 

@@ -14,10 +14,9 @@ import { Slider } from "@/components/ui/slider"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useActionState } from "react"
-import {assistantsTable, ModelName, ModelProvider, ModelType } from "@/lib/db/schema"
+import {Assistant,  ModelName, ModelProvider, ModelType } from "@/lib/db/schema"
 import {createAssistant, updateAssistant, type State } from "../lib/actions"
-import type { Assistant } from "@/lib/db/schema"
-import { createUpdateSchema } from "drizzle-zod"
+
 
 const formSchema = z.object({
     id: z.string(),
@@ -35,11 +34,10 @@ const formSchema = z.object({
     apiKey: z.string().min(1, "API Key is required"),
 })
 
-const userUpdateSchema = createUpdateSchema(assistantsTable);
 
 interface EditFormProps {
-    initialData?:
-        z.infer<typeof formSchema>
+    initialData?: Assistant
+
 
 }
 
@@ -54,7 +52,7 @@ export function EditForm({ initialData }: EditFormProps) {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: initialData || {
+        defaultValues: formSchema.parse(initialData) || {
             name: "",
             description:  "",
             provider: ModelProvider.OpenAI,
@@ -368,7 +366,7 @@ export function EditForm({ initialData }: EditFormProps) {
                 <FormField
                     control={form.control}
                     name="suggestions"
-                    render={({ field }) => (
+                    render={() => (
                         <FormItem>
                             <FormLabel>Suggestions</FormLabel>
                             <FormControl>

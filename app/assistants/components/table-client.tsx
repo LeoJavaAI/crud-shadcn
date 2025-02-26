@@ -13,7 +13,7 @@ interface TableClientProps {
 
 export function TableClient({ assistants }: TableClientProps) {
 
-    const { assistant, setAssistant  } = useAssistantStore()
+    const {  setAssistant  } = useAssistantStore()
     const handleRowClick = (clickedAssistant: Assistant) => {
         setAssistant(clickedAssistant)
 

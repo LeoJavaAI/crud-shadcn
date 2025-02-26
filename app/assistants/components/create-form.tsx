@@ -350,7 +350,7 @@ export function CreateForm() {
                 <FormField
                     control={form.control}
                     name="suggestions"
-                    render={({ field }) => (
+                    render={() => (
                         <FormItem>
                             <FormLabel>Suggestions</FormLabel>
                             <FormControl>
