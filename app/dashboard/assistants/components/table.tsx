@@ -1,6 +1,6 @@
-import {fetchFilteredAssistants,} from "@/app/assistants/lib/actions";
 
 import { TableClient } from "./table-client";
+import {fetchFilteredAssistants} from "@/app/dashboard/assistants/lib/actions";
 
 
 export default async function Table({

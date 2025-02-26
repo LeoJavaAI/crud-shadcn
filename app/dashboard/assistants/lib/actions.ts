@@ -267,9 +267,9 @@ export async function createAssistant(prevState: State, formData: FormData): Pro
         }
     }
 
-    revalidatePath("/assistants")
+    revalidatePath("/dashboard/assistants")
     redirect(
-        `/assistants?message=${encodeURIComponent(`Assistant ${validatedFields.data.name} was successfully created`)}`,
+        `/dashboard/assistants?message=${encodeURIComponent(`Assistant ${validatedFields.data.name} was successfully created`)}`,
     )
 }
 
@@ -313,9 +313,9 @@ export async function updateAssistant(id: string, prevState: State, formData: Fo
         }
     }
 
-    revalidatePath("/assistants")
+    revalidatePath("/dashboard/assistants")
     redirect(
-        `/assistants?message=${encodeURIComponent(`Assistant ${validatedFields.data.name} was successfully updated`)}`,
+        `/dashboard/assistants?message=${encodeURIComponent(`Assistant ${validatedFields.data.name} was successfully updated`)}`,
     )
 }
 
@@ -332,8 +332,8 @@ export async function deleteAssistant(id: string, name: string): Promise<State> 
         }
     }
 
-    revalidatePath("/assistants")
-    redirect(`/assistants?message=${encodeURIComponent(`Assistant ${name} was successfully deleted`)}`)
+    revalidatePath("/dashboard/assistants")
+    redirect(`/dashboard/assistants?message=${encodeURIComponent(`Assistant ${name} was successfully deleted`)}`)
 }
 
 

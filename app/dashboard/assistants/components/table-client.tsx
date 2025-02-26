@@ -109,7 +109,7 @@ export function TableClient({ assistants }: TableClientProps) {
                                     <td className="whitespace-nowrap px-4 py-4">
                                         <div className="flex items-center gap-3">
                                             <Button variant="ghost" size="icon" asChild>
-                                                <Link href={`/assistants/${assistant.id}/edit`}>
+                                                <Link href={`/dashboard/assistants/${assistant.id}/edit`}>
                                                     <Pencil className="h-4 w-4" />
                                                     <span className="sr-only">Edit</span>
                                                 </Link>

@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation"
 export function CreateAssistant() {
     return (
         <Button asChild>
-            <Link href="/assistants/create">
+            <Link href="/dashboard/assistants/create">
                 <PlusIcon className="h-4 w-4 mr-2" />
                 Add Assistant
             </Link>

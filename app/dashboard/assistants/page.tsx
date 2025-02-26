@@ -4,14 +4,15 @@ import type { Metadata } from "next"
 
 // import { CreateUser } from "@/app/assistants/ui/buttons"
 
-import {fetchUsersPages} from "@/app/assistants/lib/actions";
-import {AssistantsTableSkeleton} from "@/app/assistants/components/skeleton";
-import Table from "@/app/assistants/components/table";
-import Pagination from "@/app/assistants/components/pagination";
-import Search from "@/app/assistants/components/search";
-import {CreateAssistant} from "@/app/assistants/components/button";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2 } from "lucide-react";
+import {fetchUsersPages} from "@/app/dashboard/assistants/lib/actions";
+import Search from "./components/search";
+import { CreateAssistant } from "./components/button";
+import {AssistantsTableSkeleton} from "@/app/dashboard/assistants/components/skeleton";
+import Table from "@/app/dashboard/assistants/components/table";
+import Pagination from "@/app/dashboard/assistants/components/pagination";
 
 export const metadata: Metadata = {
     title: "Assistant",
@@ -33,11 +34,16 @@ export default async function Page(props: {
     const message = searchParams?.message;
 
     return (
-        <div className="w-full">
-            <div className="flex w-full items-center justify-between">
-                <h1 className="text-2xl font-bold">Assistants</h1>
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+
+        <section className="py-4">
+            <div className="container px-0 md:px-8">
+
+                <h1 className="mb-10 px-4 text-3xl font-semibold md:mb-14 md:text-4xl">
+                    Assistants
+                </h1>
+                <div className="flex flex-col">
+
+            <div className="mt-4 flex   gap-2 md:mt-8">
                 <Search placeholder="Search Assistants..." />
                 <CreateAssistant />
             </div>
@@ -53,7 +59,9 @@ export default async function Page(props: {
                     <AlertDescription className="text-green-600">{message}</AlertDescription>
                 </Alert>
             )}
-        </div>
+  </div>
+            </div>
+            </section>
     )
 }
 

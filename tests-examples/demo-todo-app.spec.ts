@@ -399,11 +399,11 @@ test.describe('Routing', () => {
     const completedLink = page.getByRole('link', { name: 'Completed' });
     await activeLink.click();
 
-    // Page change - active items.
+    // Layout change - active items.
     await expect(activeLink).toHaveClass('selected');
     await completedLink.click();
 
-    // Page change - completed items.
+    // Layout change - completed items.
     await expect(completedLink).toHaveClass('selected');
   });
 });
