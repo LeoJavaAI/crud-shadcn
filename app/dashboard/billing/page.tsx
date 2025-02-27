@@ -1,18 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Check, Users, LayoutTemplate } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import {createSubscription} from "@/app/dashboard/billing/actions";
+import {createSubscription, fetchActiveSubscription} from "@/app/dashboard/billing/actions";
+import {Subscription} from "@/lib/db/schema";
 
 type PlanPrice = {
     monthly: number
     yearly: number
 }
 
-type Plan = {
+type BasePlan = {
     name: string
     description: string
     price: PlanPrice
@@ -21,6 +22,10 @@ type Plan = {
     features: string[]
     cta: string
     popular: boolean
+}
+
+type Plan = BasePlan & {
+    active: boolean
 }
 
 type SelectedPlan = Plan & {
@@ -32,8 +37,26 @@ export default function PricingComponent() {
     const [isYearly, setIsYearly] = useState(false)
     const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null)
     const [showSuccess, setShowSuccess] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [activePlanName, setActivePlanName] = useState<Subscription>()
 
-    const plans: Plan[] = [
+    useEffect(() => {
+        const loadActiveSubscription = async () => {
+            try {
+                const userId = "user_123" // In real app, get from auth
+                const activePlan = await fetchActiveSubscription(userId)
+                setActivePlanName(activePlan)
+            } catch (error) {
+                console.error("Error loading active subscription:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        loadActiveSubscription()
+    }, [])
+
+    const basePlans: BasePlan[] = [
         {
             name: "Free",
             description: "Essential features for individuals and small teams",
@@ -62,44 +85,55 @@ export default function PricingComponent() {
         },
     ]
 
-    const handleSelectPlan = async (plan: Plan) => {
-        const selectedPlanData: SelectedPlan = {
-            ...plan,
+    const plans: Plan[] = basePlans.map((plan) => ({
+        ...plan,
+        active: plan.name === activePlanName,
+    }))
+
+    const handleSelectPlan = async (selectedPlan: BasePlan) => {
+        const planData: SelectedPlan = {
+            ...selectedPlan,
+            active: selectedPlan.name === activePlanName,
             billingCycle: isYearly ? "yearly" : "monthly",
-            currentPrice: isYearly ? plan.price.yearly : plan.price.monthly,
+            currentPrice: isYearly ? selectedPlan.price.yearly : selectedPlan.price.monthly,
         }
 
         try {
-            // In a real application, you would get the userId from your auth system
             const userId = "user_123" // Example user ID
+            const priceInCents = planData.currentPrice * 100
 
-            // Convert price to cents for database storage
-            const priceInCents = selectedPlanData.currentPrice * 100
-
-            // Example of how to use the createSubscription function
-            // This would typically be called via a server action or API route
 
             await createSubscription({
               userId,
               plan: {
-                name: plan.name,
-                description: plan.description,
-                numberOfAssistants: plan.numberOfAssistants,
-                numberOfTemplates: plan.numberOfTemplates,
-                features: plan.features,
+                name: selectedPlan.name,
+                description: selectedPlan.description,
+                numberOfAssistants: selectedPlan.numberOfAssistants,
+                numberOfTemplates: selectedPlan.numberOfTemplates,
+                features: selectedPlan.features,
               },
-              billingCycle: selectedPlanData.billingCycle,
+              billingCycle: planData.billingCycle,
               currentPrice: priceInCents,
             })
 
 
-            console.log("Selected Plan:", selectedPlanData)
-            setSelectedPlan(selectedPlanData)
+            console.log("Selected Plan:", planData)
+            setSelectedPlan(planData)
+            setActivePlanName(selectedPlan.name)
             setShowSuccess(true)
         } catch (error) {
             console.error("Error creating subscription:", error)
-            // Handle error appropriately
         }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-16 max-w-6xl">
+                <div className="text-center">
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-2">Loading plans...</h2>
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -123,10 +157,19 @@ export default function PricingComponent() {
 
             <div className="grid md:grid-cols-2 gap-8">
                 {plans.map((plan) => (
-                    <Card key={plan.name} className={`flex flex-col relative ${plan.popular ? "border-primary shadow-lg" : ""}`}>
-                        {plan.popular && (
+                    <Card
+                        key={plan.name}
+                        className={`flex flex-col relative transition-all duration-200 ${
+                            plan.active
+                                ? "border-primary shadow-lg scale-[1.02] bg-primary/5"
+                                : plan.popular
+                                    ? "border-primary shadow-lg"
+                                    : "hover:border-primary/50"
+                        }`}
+                    >
+                        {(plan.popular || plan.active) && (
                             <div className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full absolute -top-3 right-4">
-                                Popular
+                                {plan.active ? "Current Plan" : "Popular"}
                             </div>
                         )}
                         <CardHeader className="relative">
@@ -176,11 +219,11 @@ export default function PricingComponent() {
                         </CardContent>
                         <CardFooter>
                             <Button
-                                className={`w-full ${plan.popular ? "bg-primary hover:bg-primary/90" : ""}`}
-                                variant={plan.popular ? "default" : "outline"}
+                                className={`w-full ${plan.active ? "bg-primary/20 hover:bg-primary/30 text-primary" : ""}`}
+                                variant={plan.active ? "outline" : "default"}
                                 onClick={() => handleSelectPlan(plan)}
                             >
-                                {plan.cta}
+                                {plan.active ? "Current Plan" : plan.cta}
                             </Button>
                         </CardFooter>
                     </Card>
