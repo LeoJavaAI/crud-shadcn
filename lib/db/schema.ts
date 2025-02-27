@@ -14,7 +14,18 @@ import {
 } from "drizzle-orm/pg-core";
 import {createInsertSchema} from "drizzle-zod";
 
+export const feedbacks = pgTable("feedbacks", {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    subject: text("subject").notNull(),
+    message: text("message").notNull(),
+    willBuy: boolean("will_buy"),
+    price: integer("price"),
+    userId: uuid('userId')
+        .notNull()
+        .references(() => usersTable.id),
+});
 
+export type Feedback = InferSelectModel<typeof feedbacks>;
 
 
 // Enum for billing cycle
