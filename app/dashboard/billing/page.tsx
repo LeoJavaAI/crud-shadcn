@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import {createSubscription, fetchActiveSubscription} from "@/app/dashboard/billing/actions";
-import {Subscription} from "@/lib/db/schema";
 
 type PlanPrice = {
     monthly: number
@@ -38,14 +37,15 @@ export default function PricingComponent() {
     const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null)
     const [showSuccess, setShowSuccess] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [activePlanName, setActivePlanName] = useState<Subscription>()
+    const [activePlanName, setActivePlanName] = useState<string | null>(null)
 
     useEffect(() => {
         const loadActiveSubscription = async () => {
             try {
                 const userId = "user_123" // In real app, get from auth
                 const activePlan = await fetchActiveSubscription(userId)
-                setActivePlanName(activePlan)
+
+                setActivePlanName(activePlan?.planName ?? null)
             } catch (error) {
                 console.error("Error loading active subscription:", error)
             } finally {
@@ -84,6 +84,8 @@ export default function PricingComponent() {
             popular: true,
         },
     ]
+
+    console.log("ac " + activePlanName);
 
     const plans: Plan[] = basePlans.map((plan) => ({
         ...plan,
