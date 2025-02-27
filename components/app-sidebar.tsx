@@ -1,7 +1,7 @@
 "use client"
 import * as React from "react"
 
-import { SearchForm } from "@/components/search-form"
+
 import { VersionSwitcher } from "@/components/version-switcher"
 import {
   Sidebar,
@@ -60,7 +60,7 @@ const data = {
       items: [
         {
           title: "Manage",
-          url: "/billing",
+          url: "/dashboard/billing",
         },
 
 
@@ -72,7 +72,7 @@ const data = {
       items: [
         {
           title: "Feedback",
-          url: "/feedback",
+          url: "/dashboard/feedback",
         },
 
 
@@ -89,10 +89,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarHeader>
         <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
+
         />
-        <SearchForm />
+
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}

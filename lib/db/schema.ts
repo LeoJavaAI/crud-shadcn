@@ -1,8 +1,56 @@
 import { InferSelectModel } from "drizzle-orm";
-import { integer, json, pgTable, real, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+    boolean,
+    integer,
+    json,
+    pgEnum,
+    pgTable,
+    real,
+    serial,
+    text,
+    timestamp,
+    uuid,
+    varchar
+} from "drizzle-orm/pg-core";
 import {createInsertSchema} from "drizzle-zod";
 
 
+
+
+// Enum for billing cycle
+export const billingCycleEnum = pgEnum("billing_cycle", ["monthly", "yearly"])
+
+
+
+// Subscriptions table with complete plan information
+export const subscriptions = pgTable("subscriptions", {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+
+    // Plan details stored directly in subscription
+    planName: text("plan_name").notNull(),
+    planDescription: text("plan_description").notNull(),
+    numberOfAssistants: integer("number_of_assistants").notNull(),
+    numberOfTemplates: integer("number_of_templates").notNull(),
+    features: text("features").array().notNull(),
+
+    // Billing details
+    billingCycle: billingCycleEnum("billing_cycle").notNull(),
+    currentPrice: integer("current_price").notNull(), // Store in cents
+
+    // Subscription status
+    startDate: timestamp("start_date").defaultNow(),
+    endDate: timestamp("end_date"),
+    isActive: boolean("is_active").default(true),
+
+    // Timestamps
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+})
+
+// Types
+export type NewSubscription = typeof subscriptions.$inferInsert
+export type Subscription = typeof subscriptions.$inferSelect
 
 
 
