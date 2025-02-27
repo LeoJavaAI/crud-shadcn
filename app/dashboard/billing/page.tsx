@@ -7,6 +7,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Switch } from "@/components/ui/switch"
 import {createSubscription, fetchActiveSubscription} from "@/app/dashboard/billing/actions";
 
+
+type ActivePlanState = {
+    name: string
+    billingCycle: "monthly" | "yearly"
+} | null
+
 type PlanPrice = {
     monthly: number
     yearly: number
@@ -37,7 +43,9 @@ export default function PricingComponent() {
     const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null)
     const [showSuccess, setShowSuccess] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [activePlanName, setActivePlanName] = useState<string | null>(null)
+    const [] = useState<string | null>(null)
+    const [activePlanState, setActivePlanState] = useState<ActivePlanState>(null)
+
 
     useEffect(() => {
         const loadActiveSubscription = async () => {
@@ -45,7 +53,16 @@ export default function PricingComponent() {
                 const userId = "user_123" // In real app, get from auth
                 const activePlan = await fetchActiveSubscription(userId)
 
-                setActivePlanName(activePlan?.planName ?? null)
+                if (activePlan) {
+                    setActivePlanState({
+                        name: activePlan.planName,
+                        billingCycle: activePlan.billingCycle,
+                    })
+                    // Set the billing cycle toggle based on active subscription
+                    setIsYearly(activePlan.billingCycle === "yearly")
+
+
+                }
             } catch (error) {
                 console.error("Error loading active subscription:", error)
             } finally {
@@ -85,18 +102,22 @@ export default function PricingComponent() {
         },
     ]
 
-    console.log("ac " + activePlanName);
+
 
     const plans: Plan[] = basePlans.map((plan) => ({
         ...plan,
-        active: plan.name === activePlanName,
+        active:
+            activePlanState !== null &&
+            plan.name === activePlanState.name &&
+            activePlanState.billingCycle === (isYearly ? "yearly" : "monthly"),
     }))
 
     const handleSelectPlan = async (selectedPlan: BasePlan) => {
+        const billingCycle = isYearly ? "yearly" : "monthly"
         const planData: SelectedPlan = {
             ...selectedPlan,
-            active: selectedPlan.name === activePlanName,
-            billingCycle: isYearly ? "yearly" : "monthly",
+            active: selectedPlan.name === activePlanState?.name && billingCycle === activePlanState?.billingCycle,
+            billingCycle,
             currentPrice: isYearly ? selectedPlan.price.yearly : selectedPlan.price.monthly,
         }
 
@@ -121,7 +142,10 @@ export default function PricingComponent() {
 
             console.log("Selected Plan:", planData)
             setSelectedPlan(planData)
-            setActivePlanName(selectedPlan.name)
+            setActivePlanState({
+                name: selectedPlan.name,
+                billingCycle,
+            })
             setShowSuccess(true)
         } catch (error) {
             console.error("Error creating subscription:", error)
